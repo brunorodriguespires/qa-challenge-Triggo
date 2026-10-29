@@ -40,7 +40,6 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      grepInvert: /@mobile/,
     },
     {
       // Segundo navegador: apenas smoke e fluxos de maior risco (tag @cross)

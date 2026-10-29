@@ -23,17 +23,18 @@
 | ID | Risco | P | I | Severidade | Cenários | Mitigação |
 |---|---|---|---|---|---|---|
 | RF-01 | Tabela de usuários não carrega ou carrega vazia ("Showing 0 entries") | Média | Alto | **Alta** | USR-01, USR-02 | Teste smoke valida linhas e contador de registros |
-| RF-02 | Filtro por Role ou busca retorna registros incorretos | Média | Alto | **Alta** | USR-03 | Assertar que todas as linhas visíveis satisfazem o filtro |
+| RF-02 | Busca por texto ou filtro por Role retorna registros incorretos | Média | Alto | **Alta** | USR-03 | Assertar que todas as linhas visíveis satisfazem o filtro |
 | RF-03 | Busca sem resultado não mostra estado vazio (tabela quebrada ou sem feedback) | Média | Médio | **Média** | USR-04 | Cenário negativo com termo inexistente |
 | RF-04 | Ordenação incorreta (colunas ID, Name, Email, Status) ou sem alternância asc/desc | Média | Alto | **Alta** | USR-05 | Comparar a ordem da coluna com a ordenação esperada, calculada no teste |
 | RF-05 | Paginação inconsistente com "5/10/15/All per page" ou com o contador "Showing X entries" | Média | Alto | **Alta** | USR-06 | Assertar nº de linhas e texto do contador após mudar o tamanho da página |
 | RF-06 | Combinação de filtro, ordenação e paginação perde estado | Média | Médio | **Média** | USR-03/05/06 | Cenário combinado como P1, se houver tempo |
-| RF-07 | Formulário aceita dados inválidos (e-mail mal formado, campos obrigatórios vazios) | Média | Alto | **Alta** | FRM-02, FRM-03 | Teste negativo com asserção das mensagens de erro |
+| RF-07 | Formulário aceita dados inválidos (nome vazio, e-mail mal formado, senha com menos de 8 caracteres, termos não aceitos) | Média | Alto | **Alta** | FRM-02, FRM-03 | Teste negativo com asserção das mensagens de erro |
 | RF-08 | Formulário válido não confirma o envio ("Registration successful!") | Baixa | Alto | **Média** | FRM-01 | Teste do caminho feliz |
 | RF-09 | Reset não limpa todos os campos ou o contador de bio (0/200) | Média | Médio | **Média** | FRM-05 | Assertar valores vazios e contador zerado |
 | RF-10 | Limite de 200 caracteres da bio não é respeitado | Média | Médio | **Média** | FRM-04 | Preencher 201 caracteres e validar truncamento ou erro ⚠️ |
-| RF-11 | Ação "Add User" não adiciona o registro ou não atualiza o contador ⚠️ | Média | Alto | **Alta** | USR-08 | Avaliar na exploração; candidato a P1 |
+| RF-11 | Modal "Add New User" confirma, mas o registro não aparece na tabela ou o contador não é atualizado | Média | Alto | **Alta** | USR-08 | T08: adicionar usuário e localizá-lo pela busca |
 | RF-12 | Dropdown em cascata (Continent → Country → City) mantém opções antigas | Média | Médio | **Média** | — | Fora do escopo obrigatório; backlog |
+| RF-13 | Modal "Add New User" aceita dados inválidos (nome vazio, e-mail inválido) ⚠️ | Média | Médio | **Média** | USR-08 | Verificar na implementação; vira asserção extra em T08 se houver validação |
 
 ## 2. Riscos técnicos (da automação)
 
@@ -42,7 +43,7 @@
 | RT-01 | **Delayed Dropdown** carrega após ~2 s; clicar antes causa falha intermitente | Alta | Alto | **Crítica** | DYN-01, DYN-02 | Aguardar a condição observável (opções habilitadas/visíveis) em vez de espera fixa |
 | RT-02 | **Dynamic Table** troca colunas e linhas de posição a cada reload; seletores por índice quebram | Alta | Alto | **Crítica** | DYN-03, DYN-05 | Localizar por cabeçalho (`columnheader`) e mapear o índice em tempo de execução |
 | RT-03 | Seção "Flaky Elements" tem elementos que aparecem e somem a cada 2 s | Alta | Médio | **Alta** | — | Fora do escopo; se usado, `expect.poll`/auto-wait. Não entra nos testes estáveis |
-| RT-04 | **Banner de cookies** (Cookie Consent) pode sobrepor elementos e interceptar cliques | Média | Alto | **Alta** | Todos | Tratar como pré-condição do teste (aceitar/rejeitar via helper ou `storageState`) ⚠️ |
+| RT-04 | **Banner de cookies fixo no rodapé (confirmado)** pode sobrepor controles e interceptar cliques, sobretudo em mobile | Alta | Alto | **Crítica** | Todos | Fixture que dispensa o banner ("Reject All") antes de cada teste; teste não depende dele |
 | RT-05 | Página única extensa (20 seções): seletores genéricos colidem entre seções | Alta | Médio | **Alta** | Todos | Escopo por seção (ex.: `#tables`, `getByRole('region')`) e `getByRole` com nome |
 | RT-06 | Ausência de `data-testid` ou testids duplicados em algumas áreas ⚠️ | Média | Médio | **Média** | Todos | Prioridade: role → label → testid. Validar na Etapa 1 |
 | RT-07 | Dependências externas (imagens Unsplash, jsonplaceholder, iframe externo) lentas ou fora do ar | Média | Médio | **Média** | — | Não usar seções dependentes de rede externa; usar `route` para bloquear imagens se atrapalharem |
@@ -94,10 +95,25 @@ Estes pontos não foram citados no desafio e são tratados como diferencial.
 
 | Severidade | Quantidade | IDs |
 |---|---:|---|
-| Crítica | 4 | RT-01, RT-02, RU-01, RA-01 |
-| Alta | 14 | RF-01, RF-02, RF-04, RF-05, RF-07, RF-11, RT-03, RT-04, RT-05, RT-12, RU-02, RU-05, RA-02, RA-04 |
-| Média | 17 | RF-03, RF-06, RF-08, RF-09, RF-10, RF-12, RT-06, RT-07, RT-08, RT-10, RT-11, RU-03, RU-04, RA-03, RA-05, RA-06, RA-07 |
+| Crítica | 5 | RT-01, RT-02, RT-04, RU-01, RA-01 |
+| Alta | 13 | RF-01, RF-02, RF-04, RF-05, RF-07, RF-11, RT-03, RT-05, RT-12, RU-02, RU-05, RA-02, RA-04 |
+| Média | 18 | RF-03, RF-06, RF-08, RF-09, RF-10, RF-12, RF-13, RT-06, RT-07, RT-08, RT-10, RT-11, RU-03, RU-04, RA-03, RA-05, RA-06, RA-07 |
 | Baixa | 4 | RT-09, RU-06, RU-07, RA-08 |
-| **Total** | **39** | |
+| **Total** | **40** | |
 
 > A contagem será atualizada após a exploração manual da Etapa 1, quando os itens marcados com ⚠️ forem confirmados ou descartados.
+
+## 7. Comportamentos confirmados na exploração manual
+
+| Item | Resultado |
+|---|---|
+| Busca na tabela de usuários | Busca **por texto** |
+| Botão "Add User" | Abre o modal **Add New User** com Name, Email, Role (Admin, Editor, Viewer) e botões Cancel e Confirm |
+| Confirm no modal | O novo usuário **é adicionado à lista da tabela** |
+| Validação "Full Name" vazio | "Name is required" |
+| Validação "Email Address" inválido | "Valid email is required" |
+| Validação "Password" curta | "Password must be at least 8 characters" |
+| Termos não aceitos | "You must accept the terms" |
+| Banner de cookies | **Presente**, fixo no rodapé (botões Settings, Reject All, Accept All) |
+
+**Ainda a confirmar na implementação:** `data-testid` disponíveis, valores possíveis de Status, se o contador "Showing X entries" é atualizado após adicionar, comportamento de ordenação e paginação, limite real da bio (200).

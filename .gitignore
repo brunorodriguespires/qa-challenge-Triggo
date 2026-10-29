@@ -1,0 +1,21 @@
+# Dependências
+node_modules/
+
+# Saídas do Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Variáveis de ambiente (nunca versionar segredos)
+.env
+
+# Sistema operacional e editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,37 @@
+{
+  "name": "qa-challenge-triggo",
+  "version": "1.0.0",
+  "description": "Case técnico de Engenharia de Qualidade Front Web.\r Aplicação-alvo: [PlayLab — Playwright Practice Arena](https://playwrightlab.github.io/)",
+  "private": true,
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "engines": { "node": ">=18" },
+  "scripts": {
+  "test": "playwright test",
+  "test:chromium": "playwright test --project=chromium",
+  "test:firefox": "playwright test --project=firefox",
+  "test:mobile": "playwright test --project=mobile",
+  "test:smoke": "playwright test --grep @smoke",
+  "test:headed": "playwright test --headed --project=chromium",
+  "test:ui": "playwright test --ui",
+  "test:debug": "playwright test --debug",
+  "report": "playwright show-report",
+  "typecheck": "tsc --noEmit"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brunorodriguespires/qa-challenge-Triggo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/brunorodriguespires/qa-challenge-Triggo/issues"
+  },
+  
+  "homepage": "https://github.com/brunorodriguespires/qa-challenge-Triggo#readme"
+}

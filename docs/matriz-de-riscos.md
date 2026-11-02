@@ -85,7 +85,7 @@ Estes pontos não foram citados no desafio e são tratados como diferencial.
 | ID | Risco | Observação |
 |---|---|---|
 | RX-01 | **Cookie banner** pode mascarar falhas ou causar flakiness em CI | Ver RT-04. Tratar de forma centralizada na fixture |
-| RX-02 | **Página monolítica**: um erro de JS em uma seção pode afetar as demais | Capturar `pageerror` e `console.error` durante os testes e falhar se houver erro inesperado |
+| RX-02 | **Página monolítica**: um erro de JS em uma seção pode afetar as demais | Capturar `pageerror` durante os testes e registrar como anotação no relatório, sem reprovar o teste: um erro em seção alheia não invalida o comportamento testado |
 | RX-03 | **Dependência de terceiros** (Unsplash, jsonplaceholder) | Bloquear recursos externos não essenciais com `page.route` para reduzir ruído |
 | RX-04 | **Site de terceiros pode mudar sem aviso** (é um playground mantido por outra pessoa) | Seletores baseados em role/label; documentar a data da análise; revalidar antes da entrega |
 | RX-05 | **Dados da tabela provavelmente fixos e em memória** ⚠️ | Ações como "Add User" não persistem; cada reload reinicia. Favorece isolamento, mas limita testes de persistência |
@@ -116,4 +116,17 @@ Estes pontos não foram citados no desafio e são tratados como diferencial.
 | Termos não aceitos | "You must accept the terms" |
 | Banner de cookies | **Presente**, fixo no rodapé (botões Settings, Reject All, Accept All) |
 
-**Ainda a confirmar na implementação:** `data-testid` disponíveis, valores possíveis de Status, se o contador "Showing X entries" é atualizado após adicionar, comportamento de ordenação e paginação, limite real da bio (200).
+## 8. Confirmado na implementação
+
+| Item | Resultado |
+|---|---|
+| `data-testid` | Disponíveis nas seções cobertas |
+| Valores de Status | `active`, `inactive`, `pending` |
+| Contador após adicionar usuário | **Atualizado** (T08) |
+| Ordenação e paginação | Funcionam como esperado (T03) |
+| Limite da bio (RF-10) | **Defeito:** não é aplicado; o contador chega a `201/200`, sem erro (T05) |
+| Estado vazio da busca (RF-03) | Sem linhas, mas o texto é incoerente: `Showing 1-0 of 0 entries` (T02) |
+| Violações do axe (RA-01, RA-02, RA-05) | `button-name`, `label`, `select-name` e `color-contrast` nos controles e badges da tabela; os campos do formulário têm label (T07) |
+| Focus Trap (RA-04) | Funciona: Tab cíclico, Escape fecha e devolve o foco (T07) |
+| Modal "Add New User" (RF-13) | Sem validação: campos vazios assumem "New User" e "new@example.com" (leitura do código do site; sem teste automatizado) |
+| Scroll horizontal em mobile (RU-01) | Não ocorre no Pixel 7 (T08) |

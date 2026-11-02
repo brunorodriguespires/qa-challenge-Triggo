@@ -5,6 +5,10 @@ import { COLUNAS_ESPERADAS } from '@pages/users-table.page';
 const PERFIS_VALIDOS = ['admin', 'editor', 'viewer'];
 const STATUS_VALIDOS = ['active', 'inactive', 'pending'];
 
+// Rastreabilidade com docs/matriz-de-cenarios.md e docs/matriz-de-riscos.md
+// T01: USR-01, USR-02, USR-07 | riscos RF-01
+// T02: USR-03, USR-04         | riscos RF-02, RF-03 (cenário negativo)
+// T03: USR-05, USR-06         | riscos RF-04, RF-05
 test.describe('Gerenciamento de usuários', () => {
   test(
     'T01 - tabela carrega com cabeçalhos, dados e perfis válidos',
@@ -48,10 +52,12 @@ test.describe('Gerenciamento de usuários', () => {
     { tag: ['@users', '@negative', '@cross'] },
     async ({ usersTable }) => {
       await usersTable.waitForData();
+      // O termo vem da própria tabela: o teste não depende de dados fixos de um site de terceiros
       const [nomeExistente] = await usersTable.columnValues('Name');
 
       await test.step('busca por um usuário existente retorna apenas linhas compatíveis', async () => {
         await usersTable.searchFor(nomeExistente);
+        // Espera o filtro ser aplicado antes da leitura pontual abaixo
         await expect(usersTable.rows.first()).toContainText(nomeExistente);
         const nomes = await usersTable.columnValues('Name');
         for (const nome of nomes) expect(nome.toLowerCase()).toContain(nomeExistente.toLowerCase());
@@ -76,6 +82,7 @@ test.describe('Gerenciamento de usuários', () => {
       await usersTable.setRowsPerPage('15'); // todos os registros visíveis para validar a ordem completa
       await usersTable.waitForData();
 
+      // A ordem esperada é calculada a partir dos dados exibidos, sem lista fixa de nomes
       const comparar = (a: string, b: string) => a.localeCompare(b, 'en', { sensitivity: 'base' });
 
       await usersTable.sortButton('name').click();

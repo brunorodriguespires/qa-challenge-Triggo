@@ -41,6 +41,7 @@ export class UsersTablePage {
     this.nextPage = page.getByTestId('page-next');
     this.prevPage = page.getByTestId('page-prev');
 
+    // Os campos do modal usam testid porque os <label> do site não estão associados aos inputs (sem "for")
     this.modal = page.getByTestId('modal');
     this.newUserName = page.getByTestId('new-user-name');
     this.newUserEmail = page.getByTestId('new-user-email');
@@ -74,7 +75,10 @@ export class UsersTablePage {
     return indice;
   }
 
-  /** Valores (texto) de uma coluna nas linhas atualmente visíveis. */
+  /**
+   * Valores (texto) de uma coluna nas linhas atualmente visíveis.
+   * É uma leitura pontual, sem auto-wait: o teste deve garantir antes o estado esperado da tabela.
+   */
   async columnValues(coluna: Coluna): Promise<string[]> {
     const indice = await this.columnIndex(coluna);
     return this.rows.evaluateAll(

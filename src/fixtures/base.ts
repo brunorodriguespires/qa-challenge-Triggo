@@ -1,5 +1,8 @@
 import { test as base, expect, type Page } from '@playwright/test';
 import { UsersTablePage } from '@pages/users-table.page';
+import { RegistrationFormPage } from '@pages/registration-form.page';
+import { DelayedDropdownPage } from '@pages/delayed-dropdown.page';
+import { FocusTrapPage } from '@pages/focus-trap.page';
 
 /**
  * O banner de cookies (data-testid="cookie-banner") é fixo no rodapé e pode cobrir controles.
@@ -13,9 +16,34 @@ async function registerCookieBannerHandler(page: Page): Promise<void> {
   });
 }
 
+/** Prepara a página: dispensa o banner, bloqueia recursos de terceiros e abre a aplicação. */
+async function openApp(page: Page, baseURL: string | undefined): Promise<void> {
+  // Terceiros (analytics, imagens, iframe externo) não interessam ao teste, atrasam o carregamento
+  // e não devem receber tráfego da suíte.
+  const origemDaApp = new URL(baseURL!).origin;
+  await page.route(
+    (url) => url.origin !== origemDaApp,
+    (route) => route.abort(),
+  );
+  await registerCookieBannerHandler(page);
+  // O script do site é "defer" e já rodou neste ponto. Esperar o "load" chegou a estourar o tempo no Firefox.
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+}
+
+/**
+ * Cada fixture entrega o Page Object com a página pronta. Assim, o teste descreve só o comportamento,
+ * e o preparo fica em um único lugar. Cada teste recebe contexto próprio, sem dependência de ordem.
+ */
 type Fixtures = {
   usersTable: UsersTablePage;
-  /** Registra erros de JavaScript da página como anotação do teste (não falha o teste). */
+  registrationForm: RegistrationFormPage;
+  delayedDropdown: DelayedDropdownPage;
+  focusTrap: FocusTrapPage;
+  /**
+   * Registra erros de JavaScript da página como anotação do teste (não falha o teste).
+   * Decisão: a página tem dezenas de seções, e um erro em seção alheia não deve reprovar o teste,
+   * mas fica visível no relatório (risco RX-02).
+   */
   pageErrors: string[];
 };
 
@@ -32,16 +60,32 @@ export const test = base.extend<Fixtures>({
     { auto: true },
   ],
 
-  usersTable: async ({ page }, use) => {
-    // Imagens de terceiros (Unsplash) não interessam ao teste e adicionam ruído de rede.
-    await page.route('https://images.unsplash.com/**', (route) => route.abort());
-
-    await registerCookieBannerHandler(page);
-    await page.goto('/');
-
+  usersTable: async ({ page, baseURL }, use) => {
+    await openApp(page, baseURL);
     const usersTable = new UsersTablePage(page);
     await usersTable.card.scrollIntoViewIfNeeded();
     await use(usersTable);
+  },
+
+  registrationForm: async ({ page, baseURL }, use) => {
+    await openApp(page, baseURL);
+    const registrationForm = new RegistrationFormPage(page);
+    await registrationForm.form.scrollIntoViewIfNeeded();
+    await use(registrationForm);
+  },
+
+  delayedDropdown: async ({ page, baseURL }, use) => {
+    await openApp(page, baseURL);
+    const delayedDropdown = new DelayedDropdownPage(page);
+    await delayedDropdown.card.scrollIntoViewIfNeeded();
+    await use(delayedDropdown);
+  },
+
+  focusTrap: async ({ page, baseURL }, use) => {
+    await openApp(page, baseURL);
+    const focusTrap = new FocusTrapPage(page);
+    await focusTrap.openButton.scrollIntoViewIfNeeded();
+    await use(focusTrap);
   },
 });
 

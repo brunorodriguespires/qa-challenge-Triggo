@@ -1,0 +1,63 @@
+name: Playwright
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Diária: detecta mudanças no site de terceiros
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Projeto do Playwright (vazio = todos)'
+        required: false
+        type: choice
+        options: ['', chromium, firefox, mobile]
+      grep:
+        description: 'Filtro por tag, ex.: @forms (vazio = todos)'
+        required: false
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx playwright install --with-deps chromium firefox
+
+      - name: Executar testes
+        shell: bash
+        # Entradas manuais passam por env, e não direto no script, para evitar injeção de comandos
+        env:
+          PROJECT: ${{ inputs.project }}
+          GREP: ${{ inputs.grep }}
+        run: |
+          args=()
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # PR: feedback rápido
+            args+=(--project=chromium --grep=@smoke)
+          fi
+          if [ -n "$PROJECT" ]; then args+=("--project=$PROJECT"); fi
+          if [ -n "$GREP" ]; then args+=("--grep=$GREP"); fi
+          npx playwright test "${args[@]}"
+
+      - name: Publicar relatório e evidências
+        # Roda também quando os testes falham, que é quando as evidências mais importam
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

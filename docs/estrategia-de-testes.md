@@ -139,7 +139,7 @@ Ferramentas automáticas detectam aproximadamente uma parcela dos problemas de a
 | Projeto | Navegador/Dispositivo | Viewport | Testes | Motivo |
 |---|---|---|---|---|
 | `chromium` | Desktop Chrome | 1280×720 | Todos | Navegador de maior uso; base da suíte |
-| `firefox` | Desktop Firefox | 1280×720 | `@smoke` + T02, T05, T06 | Segundo motor de renderização; foco nos fluxos de maior risco (formulário, async) |
+| `firefox` | Desktop Firefox | 1280×720 | `@smoke` + T02, T05, T06 (tag `@cross`) | Segundo motor de renderização; foco nos fluxos de maior risco (formulário, async) |
 | `mobile` | Pixel 7 (Chromium) | 412×915 | `@mobile` (T08) | Abaixo do breakpoint de 480 px do site; ativa o layout "Mobile Only" |
 
 **Por que não rodar tudo em todos:** o ganho de detecção de bugs específicos de navegador está concentrado em formulários, foco e `<select>`. Replicar ordenação/paginação (lógica JS pura) em todos os motores aumenta tempo e superfície de flakiness sem retorno proporcional.
@@ -179,17 +179,17 @@ Ferramentas automáticas detectam aproximadamente uma parcela dos problemas de a
 
 - **Aplicação de terceiros**, sem controle do código, dos dados nem de versionamento; o conteúdo pode mudar sem aviso.
 - **Dados sem API**: não é possível criar/limpar dados via backend; o isolamento depende de a página reiniciar o estado a cada carregamento.
-- **Pontos ainda não verificados**: `data-testid`, valores de Status, comportamento de ordenação e paginação, limite real da bio e atualização do contador após "Add User" serão confirmados durante a implementação.
+- **Pontos verificados na implementação:** resultados na [matriz de riscos](./matriz-de-riscos.md#8-confirmado-na-implementação).
 - Teste de acessibilidade automatizado é parcial.
 - Sem teste visual e sem WebKit.
 - Execução depende da disponibilidade do GitHub Pages.
 
 ## 12. Próximos passos
 
-1. Confirmar durante a implementação os pontos ainda não verificados (seção 11) e atualizar as matrizes.
+1. Reportar ao mantenedor do site os defeitos listados no README.
 2. Implementar T09: tabela dinâmica (DYN-03/05), por demonstrar robustez de seletores.
 3. Teste visual seletivo (`toHaveScreenshot`) em componentes estáveis.
 4. Incluir WebKit e viewport tablet.
-5. Cobertura de upload (UPL-01/02) e ação "Add User" (USR-08).
-6. Relatório consolidado na pipeline (ex.: GitHub Pages) e execução agendada.
+5. Cobertura de upload (UPL-01/02).
+6. Relatório consolidado na pipeline (ex.: GitHub Pages).
 7. Acessibilidade: ampliar o escopo do axe e validar manualmente com leitor de tela.

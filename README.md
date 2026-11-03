@@ -56,6 +56,13 @@ O [workflow](.github/workflows/playwright.yml) publica o relatório HTML e as ev
 | Push na `main` e execução diária | Suíte completa |
 | Manual | Projeto e tag à escolha |
 
+## Uso de IA
+**Utilização do Claude**: Para criação dos arquivos de estrategia de testes, Matriz de cenários e matriz de risco, utilizado o claude para gerar os arquivos, utilizando como referência o arquivo original do desafio, mas um documento com o que foi encontrado nos testes manuais exploratórios realizados na site do teste.
+
+Também foi utilizada para criar a arquitetura do fonte estabelecendo nomes das pastas e diretórios e criação dos links de conexão entre eles.
+
+E utilização para configurar o relatório pós testes automatizados.
+
 ## Defeitos encontrados no site
 
 | Defeito | Como a suíte trata |
